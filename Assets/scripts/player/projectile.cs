@@ -2,14 +2,14 @@ using UnityEngine;
 
 public class projectile : MonoBehaviour
 {
-   [SerializeField] private float speed;
-   private float direction;
-   private bool hit;
+    [SerializeField] private float speed;
+    private float direction;
+    private bool hit;
 
-   private BoxCollider2D boxCollider;
-   private Animator anim;
+    private BoxCollider2D boxCollider;
+    private Animator anim;
 
-   private void Awake()
+    private void Awake()
     {
         boxCollider = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
@@ -23,12 +23,22 @@ public class projectile : MonoBehaviour
         transform.Translate(movementSpeed, 0, 0);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D collision)
+   {
+    hit = true;
+    boxCollider.enabled = false;
+    anim.SetTrigger("explode");
+
+    if (collision.CompareTag("enemy"))
+{
+    health enemyHealth = collision.GetComponent<health>();
+
+    if (enemyHealth != null)
     {
-        hit = true;
-        boxCollider.enabled = false;
-        anim.SetTrigger("explode");
+        enemyHealth.takedamage(1);
     }
+}
+}
 
     public void SetDirection(float _direction)
     {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -15,11 +16,16 @@ public class health : MonoBehaviour
     [SerializeField] private float numberOfFlashes;
     private SpriteRenderer spriteRend;
 
+    [Header("Death Sound")]
+    [SerializeField]private AudioClip Deathsound;
+    [SerializeField]private AudioClip hurtsound;
+
     private void Awake()
     {
         currenthealth = startinghealth;
         anim = GetComponent<Animator>();
         spriteRend = GetComponent<SpriteRenderer>();
+        SoundManager.instance.PlaySound(hurtsound);
     }
 
     public void takedamage(float damage)
@@ -28,8 +34,6 @@ public class health : MonoBehaviour
 
         currenthealth = Mathf.Clamp(currenthealth - damage, 0, startinghealth);
 
-        Debug.Log(currenthealth);
-
         if (currenthealth > 0)
         {
             anim.SetTrigger("hurt");
@@ -37,13 +41,22 @@ public class health : MonoBehaviour
         }
         else
         {
-            dead = true;
+            if (!dead)
+            {
+                anim.SetTrigger("die");
 
-            anim.SetTrigger("die");
+                if (GetComponent<jumping>() != null)
+                    GetComponent<jumping>().enabled = false;
 
-            GetComponent<jumping>().enabled = false;
+                if (GetComponentInParent<EnemyPatrol>() != null)
+                    GetComponentInParent<EnemyPatrol>().enabled = false;
 
-            GetComponent<playerAttack>().enabled = false;
+                if (GetComponent<MeeleEnemy>() != null)
+                    GetComponent<MeeleEnemy>().enabled = false;
+
+                dead = true;
+                SoundManager.instance.PlaySound(Deathsound);
+            }
         }
     }
 
@@ -52,24 +65,28 @@ public class health : MonoBehaviour
         currenthealth = Mathf.Clamp(currenthealth + amount, 0, startinghealth);
     }
 
+    public bool getdead()
+    {
+        return dead;
+    }
+
     private IEnumerator Invulnerability()
     {
         Physics2D.IgnoreLayerCollision(10, 11, true);
+
         for (int i = 0; i < numberOfFlashes; i++)
         {
             spriteRend.color = new Color(1, 0, 0, 0.5f);
             yield return new WaitForSeconds(iframeDuration / (numberOfFlashes * 2));
+
             spriteRend.color = Color.white;
             yield return new WaitForSeconds(iframeDuration / (numberOfFlashes * 2));
         }
+
         Physics2D.IgnoreLayerCollision(10, 11, false);
     }
-
-    private void Update()
+    private void diactivate()
     {
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            takedamage(1);
-        }
+        gameObject.SetActive(false);
     }
 }

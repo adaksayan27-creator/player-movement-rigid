@@ -14,6 +14,9 @@ public class jumping : MonoBehaviour
     private float wallJumpcooldown;
     private float horizontalInput;
 
+    [Header("SFX")]
+    [SerializeField]private AudioClip jump;
+
     private void Awake()
     {
         body = GetComponent<Rigidbody2D>();
@@ -46,7 +49,11 @@ public class jumping : MonoBehaviour
             }
 
             if (Input.GetKeyDown(KeyCode.Space))
+            {
                 Jump();
+                 SoundManager.instance.PlaySound(jump);
+            }
+                
         }
         else
         {
@@ -62,6 +69,7 @@ public class jumping : MonoBehaviour
     {
         if (isjump())
         {
+            
             body.linearVelocity = new Vector2(body.linearVelocity.x, jumpPower);
             anim.SetTrigger("jumping");
         }
