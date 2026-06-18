@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class health : MonoBehaviour
@@ -64,7 +65,6 @@ public class health : MonoBehaviour
     {
         currenthealth = Mathf.Clamp(currenthealth + amount, 0, startinghealth);
     }
-
     public bool getdead()
     {
         return dead;
