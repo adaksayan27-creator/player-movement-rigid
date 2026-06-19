@@ -26,6 +26,8 @@ public class jumping : MonoBehaviour
 
     private void Update()
     {
+        if (GetComponent<health>().getdead()) return;
+
         horizontalInput = Input.GetAxis("Horizontal");
 
         // Flip player

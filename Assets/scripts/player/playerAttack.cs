@@ -21,7 +21,7 @@ public class playerAttack : MonoBehaviour
     {
         cooldowntimer += Time.deltaTime;
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !GetComponent<health>().getdead())
             Attack();
     }
 

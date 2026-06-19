@@ -18,15 +18,20 @@ public class health : MonoBehaviour
     private SpriteRenderer spriteRend;
 
     [Header("Death Sound")]
-    [SerializeField]private AudioClip Deathsound;
-    [SerializeField]private AudioClip hurtsound;
+    [SerializeField] private AudioClip Deathsound;
+    [SerializeField] private AudioClip hurtsound;
+
+    [Header("Game Over")]
+    [SerializeField] private GameObject gameOverPanel;
 
     private void Awake()
     {
         currenthealth = startinghealth;
         anim = GetComponent<Animator>();
         spriteRend = GetComponent<SpriteRenderer>();
-        SoundManager.instance.PlaySound(hurtsound);
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
     }
 
     public void takedamage(float damage)
@@ -37,6 +42,8 @@ public class health : MonoBehaviour
 
         if (currenthealth > 0)
         {
+            SoundManager.instance.PlaySound(hurtsound);
+
             anim.SetTrigger("hurt");
             StartCoroutine(Invulnerability());
         }
@@ -55,16 +62,45 @@ public class health : MonoBehaviour
                 if (GetComponent<MeeleEnemy>() != null)
                     GetComponent<MeeleEnemy>().enabled = false;
 
+                foreach (var proj in GetComponentsInChildren<EnemyProjectile>())
+                    proj.enabled = false;
+
                 dead = true;
                 SoundManager.instance.PlaySound(Deathsound);
+
+                if (gameOverPanel != null)
+                {
+                    if (GameOverUI.Instance != null && CoinManager.Instance != null)
+                    {
+                        Debug.Log("GameOverUI = " + GameOverUI.Instance);
+                        Debug.Log("Distance = " + transform.position.x);
+                        Debug.Log("Coins = " + CoinManager.Instance.coins);
+
+                        GameOverUI.Instance.UpdateScore(
+                            transform.position.x,
+                            CoinManager.Instance.coins
+                        );
+                    }
+
+                    StartCoroutine(ShowGameOver());
+                }
             }
         }
+    }
+
+    private IEnumerator ShowGameOver()
+    {
+        yield return new WaitForSeconds(1f);
+
+        gameOverPanel.SetActive(true);
+        Time.timeScale = 0f;
     }
 
     public void AddHealth(float amount)
     {
         currenthealth = Mathf.Clamp(currenthealth + amount, 0, startinghealth);
     }
+
     public bool getdead()
     {
         return dead;
@@ -85,6 +121,7 @@ public class health : MonoBehaviour
 
         Physics2D.IgnoreLayerCollision(10, 11, false);
     }
+
     private void diactivate()
     {
         gameObject.SetActive(false);
