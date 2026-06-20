@@ -10,31 +10,40 @@ public class door : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Player") && !triggered)
-        {
-            triggered = true;
+        if (!collision.CompareTag("Player") || triggered)
+            return;
 
-            if (transform.position.x > collision.transform.position.x)
-            {
-                cam.MoveToNewRoom(nextroom);
-                nextroom.GetComponent<Room>().ActivateRoom(true);
-                previousroom.GetComponent<Room>().ActivateRoom(false);
-            }
-            else
-            {
-                cam.MoveToNewRoom(previousroom);
-                previousroom.GetComponent<Room>().ActivateRoom(true);
-                nextroom.GetComponent<Room>().ActivateRoom(false);
-            }
-                
+        triggered = true;
+
+        // Skip if references are missing
+        if (cam == null || previousroom == null || nextroom == null)
+            return;
+
+        if (transform.position.x > collision.transform.position.x)
+        {
+            cam.MoveToNewRoom(nextroom);
+
+            Room next = nextroom.GetComponent<Room>();
+            Room prev = previousroom.GetComponent<Room>();
+
+            if (next != null) next.ActivateRoom(true);
+            if (prev != null) prev.ActivateRoom(false);
+        }
+        else
+        {
+            cam.MoveToNewRoom(previousroom);
+
+            Room prev = previousroom.GetComponent<Room>();
+            Room next = nextroom.GetComponent<Room>();
+
+            if (prev != null) prev.ActivateRoom(true);
+            if (next != null) next.ActivateRoom(false);
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
-        {
             triggered = false;
-        }
     }
 }

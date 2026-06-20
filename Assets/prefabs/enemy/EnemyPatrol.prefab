@@ -80,7 +80,7 @@ MonoBehaviour:
   leftedge: {fileID: 2560011186980352022}
   rightedge: {fileID: 1656995118907161409}
   enemy: {fileID: 0}
-  speed: 2
+  speed: 4
 --- !u!1 &8097916697816115849
 GameObject:
   m_ObjectHideFlags: 0

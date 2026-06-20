@@ -15,7 +15,10 @@ public class jumping : MonoBehaviour
     private float horizontalInput;
 
     [Header("SFX")]
-    [SerializeField]private AudioClip jump;
+    [SerializeField] private AudioClip jump;
+
+    private int maxJumps = 100;
+    private int jumpsRemaining;
 
     private void Awake()
     {
@@ -30,6 +33,9 @@ public class jumping : MonoBehaviour
 
         horizontalInput = Input.GetAxis("Horizontal");
 
+        if (isjump())
+            jumpsRemaining = maxJumps;
+
         // Flip player
         if (horizontalInput > 0.01f)
             transform.localScale = Vector3.one;
@@ -40,22 +46,13 @@ public class jumping : MonoBehaviour
         {
             body.linearVelocity = new Vector2(horizontalInput * speed, body.linearVelocity.y);
 
-            if (iswall() && !isjump())
-            {
-                body.gravityScale = 0;
-                body.linearVelocity = Vector2.zero;
-            }
-            else
-            {
-                body.gravityScale = 3;
-            }
+            body.gravityScale = 3;
 
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 Jump();
-                 SoundManager.instance.PlaySound(jump);
+                SoundManager.instance.PlaySound(jump);
             }
-                
         }
         else
         {
@@ -69,13 +66,7 @@ public class jumping : MonoBehaviour
 
     private void Jump()
     {
-        if (isjump())
-        {
-            
-            body.linearVelocity = new Vector2(body.linearVelocity.x, jumpPower);
-            anim.SetTrigger("jumping");
-        }
-        else if (iswall() && !isjump())
+        if (iswall() && !isjump())
         {
             if (transform.localScale.x == 1)
                 body.linearVelocity = new Vector2(-speed, jumpPower);
@@ -83,6 +74,13 @@ public class jumping : MonoBehaviour
                 body.linearVelocity = new Vector2(speed, jumpPower);
 
             wallJumpcooldown = 0;
+            anim.SetTrigger("jumping");
+        }
+        else if (jumpsRemaining > 0)
+        {
+            body.linearVelocity = new Vector2(body.linearVelocity.x, jumpPower);
+            anim.SetTrigger("jumping");
+            jumpsRemaining--;
         }
     }
 
